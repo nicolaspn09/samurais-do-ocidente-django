@@ -1,0 +1,148 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<script src="https://unpkg.com/imask"></script>
+
+<div id="afiliar" class="bg-gray-800 p-6 md:p-10 rounded-lg border-t-4 border-brasilAmarelo shadow-2xl my-10 max-w-4xl mx-auto">
+    <h3 class="text-3xl font-bold text-white mb-6 text-center">Formulário de Afiliação</h3>
+    <p class="text-center text-gray-300 mb-8">Selecione o seu perfil abaixo e preencha os dados. O pedido passará por análise da diretoria.</p>
+
+    <div class="flex justify-center space-x-4 mb-8">
+        <button onclick="mudarFormulario('atleta')" id="btn-form-atleta" class="bg-brasilVerde text-white font-bold py-2 px-6 rounded-t-lg border-b-4 border-green-700 opacity-100 transition">Sou Atleta</button>
+        <button onclick="mudarFormulario('academia')" id="btn-form-academia" class="bg-gray-700 text-white font-bold py-2 px-6 rounded-t-lg border-b-4 border-gray-900 opacity-60 hover:opacity-100 transition">Sou Academia</button>
+    </div>
+
+    <div id="form-atleta" class="max-w-2xl mx-auto">
+        <form method="POST" action="{% url 'afiliar' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_pedido" value="atleta">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Nome Completo *</label>
+                    <input type="text" name="nome" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">CPF *</label>
+                    <input type="text" id="cpf_atleta" name="cpf" required placeholder="000.000.000-00" class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">E-mail *</label>
+                    <input type="email" name="email" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">WhatsApp *</label>
+                    <input type="text" id="whatsapp_atleta" name="whatsapp" required placeholder="(00) 00000-0000" class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Academia Desejada *</label>
+                    <select name="academia_desejada" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                        <option value="">Selecione uma academia</option>
+                        {% for academia in academias %}
+                        <option value="{{ academia.id }}">{{ academia.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Modalidade Principal *</label>
+                    <select name="modalidade" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                        <option value="">Selecione a modalidade</option>
+                        {% for modalidade in modalidades %}
+                        <option value="{{ modalidade.id }}">{{ modalidade.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Sua Foto (Para a carteirinha) *</label>
+                    <input type="file" name="foto" accept="image/*" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-brasilVerde file:text-white hover:file:bg-green-600 cursor-pointer">
+                </div>
+
+            </div>
+            <div class="mb-6">
+                <label class="flex items-center text-sm text-gray-400">
+                    <input type="checkbox" name="termo_lgpd" required class="mr-2">
+                    Concordo com a coleta e uso dos meus dados para fins de cadastro e contato, conforme a LGPD.
+                </label>
+            </div>
+            <button type="submit" class="w-full bg-brasilVerde hover:bg-green-600 text-white font-bold py-3 px-4 rounded shadow transition">Enviar Pedido de Afiliação (Atleta)</button>
+        </form>
+    </div>
+
+    <div id="form-academia" class="max-w-2xl mx-auto hidden">
+        <form method="POST" action="{% url 'afiliar' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_pedido" value="academia">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Nome da Academia *</label>
+                    <input type="text" name="nome_academia" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Nome do Responsável/Mestre *</label>
+                    <input type="text" name="nome_responsavel" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">CPF do Responsável *</label>
+                    <input type="text" id="cpf_responsavel" name="cpf_responsavel" required placeholder="000.000.000-00" class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm font-bold mb-2">WhatsApp da Academia *</label>
+                    <input type="text" id="whatsapp_academia" name="whatsapp" required placeholder="(00) 00000-0000" class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-300 text-sm font-bold mb-2">E-mail da Academia *</label>
+                    <input type="email" name="email" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Endereço Completo *</label>
+                    <input type="text" name="endereco" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+                </div>
+            </div>
+            <div class="mb-6">
+                <label class="flex items-center text-sm text-gray-400">
+                    <input type="checkbox" name="termo_lgpd" required class="mr-2">
+                    Atesto a veracidade dos dados e concordo com os termos de afiliação da federação.
+                </label>
+            </div>
+            <button type="submit" class="w-full bg-brasilAmarelo hover:bg-yellow-500 text-brasilAzul font-bold py-3 px-4 rounded shadow transition">Enviar Pedido de Afiliação (Academia)</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function mudarFormulario(tipo) {
+        const formAtleta = document.getElementById('form-atleta');
+        const formAcademia = document.getElementById('form-academia');
+        const btnAtleta = document.getElementById('btn-form-atleta');
+        const btnAcademia = document.getElementById('btn-form-academia');
+
+        if (tipo === 'atleta') {
+            formAtleta.classList.remove('hidden');
+            formAcademia.classList.add('hidden');
+            btnAtleta.classList.replace('opacity-60', 'opacity-100');
+            btnAtleta.classList.replace('bg-gray-700', 'bg-brasilVerde');
+            btnAtleta.classList.replace('border-gray-900', 'border-green-700');
+            btnAcademia.classList.replace('opacity-100', 'opacity-60');
+            btnAcademia.classList.replace('bg-brasilVerde', 'bg-gray-700');
+            btnAcademia.classList.replace('border-green-700', 'border-gray-900');
+        } else {
+            formAtleta.classList.add('hidden');
+            formAcademia.classList.remove('hidden');
+            btnAcademia.classList.replace('opacity-60', 'opacity-100');
+            btnAcademia.classList.replace('bg-gray-700', 'bg-brasilVerde');
+            btnAcademia.classList.replace('border-gray-900', 'border-green-700');
+            btnAtleta.classList.replace('opacity-100', 'opacity-60');
+            btnAtleta.classList.replace('bg-brasilVerde', 'bg-gray-700');
+            btnAtleta.classList.replace('border-green-700', 'border-gray-900');
+        }
+    }
+
+    const maskOptionsCPF = { mask: '000.000.000-00' };
+    const maskOptionsZap = { mask: '(00) 00000-0000' };
+
+    IMask(document.getElementById('cpf_atleta'), maskOptionsCPF);
+    IMask(document.getElementById('whatsapp_atleta'), maskOptionsZap);
+    IMask(document.getElementById('cpf_responsavel'), maskOptionsCPF);
+    IMask(document.getElementById('whatsapp_academia'), maskOptionsZap);
+</script>
+{% endblock %}

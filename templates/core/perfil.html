@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+{% load static %} {% block content %}
+<div class="max-w-4xl mx-auto my-10">
+    <div class="flex flex-col md:flex-row gap-8">
+        
+        <div class="w-full md:w-1/2">
+            <div class="bg-brasilAzul rounded-xl overflow-hidden shadow-2xl border border-gray-700 relative">
+                <div class="h-2 w-full bg-brasilAmarelo"></div>
+                
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <img src="{% static 'img/LogoSamurais.png' %}" alt="Logo" class="h-16 object-contain">
+                        <span class="bg-white text-brasilAzul font-bold px-3 py-1 rounded text-xs uppercase tracking-wider">Membro Oficial</span>
+                    </div>
+                    
+                    <div class="flex gap-4 items-center">
+                        {% if atleta.foto %}
+                        <img src="{{ atleta.foto.url }}" alt="Foto {{ atleta.nome }}" class="w-24 h-32 object-cover rounded border-2 border-brasilVerde">
+                        {% else %}
+                        <div class="w-24 h-32 bg-gray-800 rounded border-2 border-gray-600 flex flex-col items-center justify-center text-xs text-center text-gray-400 p-2">
+                            <span class="font-bold">SEM FOTO</span>
+                            <span class="text-[10px] mt-1">Atualize ao lado</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div>
+                            <h3 class="text-2xl font-bold text-white uppercase">{{ atleta.nome }}</h3>
+                            
+                            <p class="text-brasilAmarelo font-bold mt-1">
+                                {% if atleta.faixa_atual %}
+                                    {{ atleta.faixa_atual.nome }}
+                                {% else %}
+                                    Faixa Pendente
+                                {% endif %}
+                            </p>
+                            
+                            <p class="text-gray-300 text-sm mt-2">
+                                <span class="font-bold">Academia:</span> 
+                                {% if atleta.academia %}
+                                    {{ atleta.academia.nome }}
+                                {% else %}
+                                    Não associada
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-black bg-opacity-40 p-4 text-xs text-gray-300 font-mono tracking-widest text-center">
+                    {% if atleta.modalidades.all %}
+                        {% for modalidade in atleta.modalidades.all %}
+                            {{ modalidade.nome }}{% if not forloop.last %} • {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        MODALIDADE PENDENTE
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 bg-gray-800 p-6 rounded-lg shadow-lg border-t border-gray-700">
+            <h4 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Atualizar Dados</h4>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 text-sm font-bold mb-2">E-mail</label>
+                    {{ form.email }}
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 text-sm font-bold mb-2">Nova Foto da Carteirinha</label>
+                    {{ form.foto }}
+                </div>
+                
+                <button type="submit" class="w-full bg-brasilAmarelo text-brasilAzul hover:bg-yellow-500 font-bold py-3 px-4 rounded shadow transition">Salvar Alterações</button>
+            </form>
+            
+            <div class="mt-8 text-center">
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-400 hover:text-red-300 font-bold underline text-sm transition">Sair da Conta</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

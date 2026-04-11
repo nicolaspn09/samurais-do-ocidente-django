@@ -1,0 +1,106 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="text-center py-10 border-b border-gray-700 mb-10">
+    <h2 class="text-4xl md:text-5xl font-bold text-brasilAmarelo mb-4">Samurais do Ocidente</h2>
+    <p class="text-lg md:text-xl text-gray-300">Federação Oficial de Artes Marciais. Acompanhe nossas notícias e filie-se.</p>
+</div>
+
+<h3 class="text-2xl font-bold text-white border-l-4 border-brasilVerde pl-3 mb-6">Últimas Notícias</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+    {% for noticia in noticias %}
+    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 flex flex-col">
+        {% if noticia.imagem %}
+        <img src="{{ noticia.imagem.url }}" class="w-full h-48 object-cover">
+        {% else %}
+        <div class="w-full h-48 bg-gray-700 flex items-center justify-center text-gray-500">Sem imagem</div>
+        {% endif %}
+        <div class="p-5 flex flex-col flex-grow">
+            <span class="text-xs text-brasilAmarelo font-bold mb-1">{{ noticia.data_publicacao|date:"d M Y" }}</span>
+            <h4 class="text-xl font-bold text-white mb-2">{{ noticia.titulo }}</h4>
+            <p class="text-gray-400 text-sm mb-4 flex-grow">{{ noticia.resumo }}</p>
+            <button onclick="abrirModal('noticia-{{ noticia.id }}')" class="mt-auto bg-brasilVerde hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition w-full text-center">
+                Ler Notícia Completa
+            </button>
+        </div>
+    </div>
+
+    <div id="noticia-{{ noticia.id }}" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-lg max-w-2xl w-full p-6 text-left relative max-h-[90vh] flex flex-col">
+            <button onclick="fecharModal('noticia-{{ noticia.id }}')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-2xl font-bold text-white mb-2 pr-8">{{ noticia.titulo }}</h3>
+            <span class="text-sm text-brasilAmarelo mb-4">{{ noticia.data_publicacao|date:"d M Y" }}</span>
+            
+            <div class="overflow-y-auto pr-2 custom-scrollbar text-gray-300 space-y-4">
+                {% if noticia.imagem %}
+                <img src="{{ noticia.imagem.url }}" class="w-full rounded mb-4">
+                {% endif %}
+                <div class="whitespace-pre-line">{{ noticia.conteudo }}</div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-400 col-span-3">Nenhuma notícia publicada no momento.</p>
+    {% endfor %}
+</div>
+
+<div class="text-center py-10 border-b border-gray-700 mb-10">
+    <h2 class="text-4xl md:text-5xl font-bold text-brasilAmarelo mb-4">Samurais do Ocidente</h2>
+    <p class="text-lg md:text-xl text-gray-300">Federação Oficial de Artes Marciais.</p>
+</div>
+
+<h3 class="text-2xl font-bold text-white border-l-4 border-brasilVerde pl-3 mb-6">Próximos Eventos e Treinos</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+    {% for evento in eventos %}
+    <div class="bg-gray-800 p-5 rounded-lg border-l-4 border-brasilAmarelo shadow-md flex flex-col">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="bg-black p-3 rounded text-center min-w-[60px]">
+                <span class="block text-2xl font-bold text-brasilVerde leading-none">{{ evento.data_evento|date:"d" }}</span>
+                <span class="block text-xs text-gray-400 uppercase">{{ evento.data_evento|date:"M" }}</span>
+            </div>
+            <div>
+                <h4 class="font-bold text-white leading-tight">{{ evento.titulo }}</h4>
+                <p class="text-xs text-gray-400 mt-1"><svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>{{ evento.local }}</p>
+            </div>
+        </div>
+        {% if evento.descricao %}
+        <p class="text-sm text-gray-300 mt-2">{{ evento.descricao|truncatewords:15 }}</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-gray-400">Nenhum evento agendado no momento.</p>
+    {% endfor %}
+</div>
+
+<script>
+    // Controle do formulário
+    function mudarFormulario(tipo) {
+        document.getElementById('form-atleta').classList.add('hidden');
+        document.getElementById('form-academia').classList.add('hidden');
+        document.getElementById('btn-form-atleta').classList.replace('opacity-100', 'opacity-60');
+        document.getElementById('btn-form-atleta').classList.replace('bg-brasilVerde', 'bg-gray-700');
+        document.getElementById('btn-form-atleta').classList.replace('border-green-700', 'border-gray-900');
+        document.getElementById('btn-form-academia').classList.replace('opacity-100', 'opacity-60');
+        document.getElementById('btn-form-academia').classList.replace('bg-brasilVerde', 'bg-gray-700');
+        document.getElementById('btn-form-academia').classList.replace('border-green-700', 'border-gray-900');
+
+        if (tipo === 'atleta') {
+            document.getElementById('form-atleta').classList.remove('hidden');
+            document.getElementById('btn-form-atleta').classList.replace('opacity-60', 'opacity-100');
+            document.getElementById('btn-form-atleta').classList.replace('bg-gray-700', 'bg-brasilVerde');
+            document.getElementById('btn-form-atleta').classList.replace('border-gray-900', 'border-green-700');
+        } else {
+            document.getElementById('form-academia').classList.remove('hidden');
+            document.getElementById('btn-form-academia').classList.replace('opacity-60', 'opacity-100');
+            document.getElementById('btn-form-academia').classList.replace('bg-gray-700', 'bg-brasilVerde');
+            document.getElementById('btn-form-academia').classList.replace('border-gray-900', 'border-green-700');
+        }
+    }
+
+    // Modais das notícias
+    function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-20 bg-gray-800 p-8 rounded-lg shadow-2xl border-t-4 border-brasilVerde">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-white">Portal do Aluno</h2>
+        <p class="text-gray-400 mt-2">Faça login para acessar sua carteirinha</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-300 text-sm font-bold mb-2">Usuário</label>
+            <input type="text" name="username" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-300 text-sm font-bold mb-2">Senha</label>
+            <input type="password" name="password" required class="w-full bg-gray-700 text-white border border-gray-600 rounded py-2 px-3 focus:outline-none focus:border-brasilAmarelo">
+        </div>
+        <button type="submit" class="w-full bg-brasilVerde hover:bg-green-600 text-white font-bold py-3 px-4 rounded shadow transition">Entrar</button>
+    </form>
+</div>
+{% endblock %}

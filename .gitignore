@@ -1,0 +1,28 @@
+# Ambientes Virtuais
+venv/
+env/
+
+# Variáveis de Ambiente e Segredos
+.env
+
+# Banco de Dados Local (NUNCA suba o banco de dados do seu PC)
+db.sqlite3
+
+# Arquivos de Mídia (Fotos de perfil, logos, etc - isso fica no servidor)
+media/
+
+# Arquivos compilados do Python
+__pycache__/
+*.pyc
+
+# Arquivos estáticos coletados (O Easypanel gera isso lá na hora)
+staticfiles/
+
+# Arquivos de xlsx
+dados_csv/
+
+# Imagens
+images/
+
+# Arquivos
+acessos_samurais.xlsx
