@@ -24,5 +24,8 @@ dados_csv/
 # Imagens
 images/
 
+# Commands
+core/management/commands
+
 # Arquivos
 acessos_samurais.xlsx
