@@ -4,6 +4,7 @@ env/
 
 # Variáveis de Ambiente e Segredos
 .env
+*.zip
 
 # Banco de Dados Local (NUNCA suba o banco de dados do seu PC)
 db.sqlite3
