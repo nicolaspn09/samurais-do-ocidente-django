@@ -3,7 +3,7 @@ from .models import Modalidade, Academia, Faixa, Atleta, HistoricoGraduacao, Mid
 
 @admin.register(Faixa)
 class FaixaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'ordem')
+    list_display = ('nome', 'ordem', 'cor_hex')
     ordering = ('ordem',)
 
 @admin.register(Modalidade)
@@ -12,7 +12,8 @@ class ModalidadeAdmin(admin.ModelAdmin):
 
 @admin.register(Academia)
 class AcademiaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'responsavel', 'endereco')
+    list_display = ('nome', 'responsavel', 'endereco', 'ativo')
+    list_filter = ('ativo',)
     
     # Filtra para o Professor ver apenas a própria academia
     def get_queryset(self, request):
@@ -34,8 +35,8 @@ class HistoricoGraduacaoInline(admin.TabularInline):
 
 @admin.register(Atleta)
 class AtletaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'academia', 'faixa_atual')
-    list_filter = ('academia', 'faixa_atual', 'modalidades')
+    list_display = ('nome', 'academia', 'faixa_atual', 'ativo')
+    list_filter = ('ativo', 'academia', 'faixa_atual', 'modalidades')
     inlines = [HistoricoGraduacaoInline]
 
     def get_readonly_fields(self, request, obj=None):

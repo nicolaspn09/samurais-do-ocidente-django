@@ -10,10 +10,10 @@ from datetime import datetime
 from .forms import FormAfiliacaoAtleta, FormAfiliacaoAcademia, FormAtualizarPerfil
 
 def home(request):
-    eventos_futuros = Evento.objects.filter(data_evento__gte=timezone.now())[:4]
+    eventos = Evento.objects.all().order_by('-data_evento')[:8]
     context = {
         'noticias': Noticia.objects.filter(ativa=True)[:3],
-        'eventos': eventos_futuros,
+        'eventos': eventos,
     }
     return render(request, 'core/home.html', context)
 
@@ -25,7 +25,7 @@ def afiliar(request):
         tipo = request.POST.get('tipo_pedido')
         
         if tipo == 'atleta':
-            form = FormAfiliacaoAtleta(request.POST, request.FILES) # request.FILES ADICIONADO AQUI
+            form = FormAfiliacaoAtleta(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Pedido enviado! Aguarde a aprovação da diretoria.')
@@ -45,20 +45,39 @@ def afiliar(request):
     return render(request, 'core/afiliacao.html', {
         'form_atleta': form_atleta, 
         'form_academia': form_academia,
-        'academias': Academia.objects.all(),
+        'academias': Academia.objects.filter(ativo=True),
         'modalidades': Modalidade.objects.all()
     })
 
 def academias_list(request):
-    academias = Academia.objects.all()
+    academias = Academia.objects.filter(ativo=True)
     return render(request, 'core/academias.html', {'academias': academias})
 
 def atletas_list(request):
-    faixas = Faixa.objects.prefetch_related(
-        'atletas_atuais__academia', 
-        'atletas_atuais__historico_faixas__faixa'
-    ).all()
-    return render(request, 'core/atletas.html', {'faixas': faixas})
+    # Busca apenas atletas ativos
+    atletas_ativos = Atleta.objects.filter(ativo=True).select_related('academia', 'faixa_atual').prefetch_related('historico_faixas')
+    
+    # Agrupar por nome e pegar a maior ordem de faixa (graduação mais alta)
+    atletas_unicos = {}
+    for atleta in atletas_ativos:
+        nome_upper = atleta.nome.strip().upper()
+        ordem_atual = atleta.faixa_atual.ordem if atleta.faixa_atual else -1
+        
+        if nome_upper not in atletas_unicos or ordem_atual > (atletas_unicos[nome_upper].faixa_atual.ordem if atletas_unicos[nome_upper].faixa_atual else -1):
+            atletas_unicos[nome_upper] = atleta
+            
+    # Re-agrupar por faixa para o template
+    faixas = Faixa.objects.all()
+    for faixa in faixas:
+        faixa.atletas_filtrados = sorted(
+            [a for a in atletas_unicos.values() if a.faixa_atual == faixa],
+            key=lambda x: x.nome
+        )
+    
+    # Filtra faixas que não tem atletas depois do filtro
+    faixas_com_atletas = [f for f in faixas if f.atletas_filtrados]
+
+    return render(request, 'core/atletas.html', {'faixas': faixas_com_atletas})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -73,7 +92,7 @@ def exportar_atletas_excel(request):
     cabecalhos = ['Nome do Atleta', 'Academia', 'Faixa Atual', 'Data da Última Graduação']
     ws.append(cabecalhos)
 
-    atletas = Atleta.objects.select_related('academia', 'faixa_atual').prefetch_related('historico_faixas').all()
+    atletas = Atleta.objects.filter(ativo=True).select_related('academia', 'faixa_atual').prefetch_related('historico_faixas').all()
     
     for atleta in atletas:
         ultima_graduacao = atleta.historico_faixas.first()
@@ -81,8 +100,8 @@ def exportar_atletas_excel(request):
         
         ws.append([
             atleta.nome, 
-            atleta.academia.nome, 
-            atleta.faixa_atual.nome, 
+            atleta.academia.nome if atleta.academia else 'N/A', 
+            atleta.faixa_atual.nome if atleta.faixa_atual else 'N/A', 
             data_formatada
         ])
 
@@ -92,10 +111,8 @@ def exportar_atletas_excel(request):
 @login_required
 def perfil_atleta(request):
     try:
-        # Tenta buscar o perfil do atleta conectado a este usuário
         atleta = request.user.perfil_atleta
     except ObjectDoesNotExist:
-        # AGORA SIM! Se o usuário não tiver atleta vinculado, ele é devolvido pra Home sem dar Erro 500
         messages.error(request, 'Sua conta ainda não possui uma carteirinha de atleta vinculada. Fale com seu Mestre.')
         return redirect('home')
 
@@ -112,3 +129,17 @@ def perfil_atleta(request):
         'atleta': atleta, 
         'form': form
     })
+
+@login_required
+def inativar_atleta(request):
+    try:
+        atleta = request.user.perfil_atleta
+        atleta.ativo = False
+        atleta.save()
+        from django.contrib.auth import logout
+        logout(request)
+        messages.success(request, 'Sua conta foi inativada com sucesso.')
+    except ObjectDoesNotExist:
+        messages.error(request, 'Atleta não encontrado.')
+    
+    return redirect('home')

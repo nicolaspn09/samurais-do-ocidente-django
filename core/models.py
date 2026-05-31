@@ -16,6 +16,7 @@ class Academia(models.Model):
     endereco = models.CharField(max_length=255)
     link_google_maps = models.URLField(blank=True)
     logo = models.ImageField(upload_to='logos_academias/', blank=True, null=True)
+    ativo = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
         if self.nome:
@@ -28,6 +29,7 @@ class Academia(models.Model):
 class Faixa(models.Model):
     nome = models.CharField(max_length=50)
     ordem = models.IntegerField(help_text="Define a hierarquia da faixa para ordenação na tela")
+    cor_hex = models.CharField(max_length=7, default="#FFFFFF", help_text="Cor da faixa em hexadecimal (ex: #000000)")
 
     class Meta:
         ordering = ['ordem']
@@ -53,6 +55,7 @@ class Atleta(models.Model):
     
     # null=True e blank=True permitem que o atleta exista sem uma faixa registrada
     faixa_atual = models.ForeignKey(Faixa, on_delete=models.RESTRICT, null=True, blank=True, related_name='atletas_atuais')
+    ativo = models.BooleanField(default=True)
     
     def __str__(self):
         return self.nome
@@ -132,6 +135,10 @@ class Evento(models.Model):
     local = models.CharField(max_length=255)
     descricao = models.TextField(blank=True)
     imagem_destaque = models.ImageField(upload_to='eventos/', blank=True, null=True)
+
+    @property
+    def encerrado(self):
+        return self.data_evento < timezone.now()
 
     class Meta:
         ordering = ['data_evento']

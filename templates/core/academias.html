@@ -1,32 +1,46 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<h2 class="text-3xl font-bold text-brasilAmarelo mb-6 border-b-2 border-brasilVerde pb-2">Nossos Associados</h2>
+<div class="mb-16">
+    <h2 class="text-5xl font-black text-white italic uppercase tracking-tighter mb-4">Centros de <span class="text-brasilVerde text-shadow-gold">Excelência</span></h2>
+    <p class="text-gray-400 font-bold uppercase tracking-widest text-xs border-l-4 border-brasilAmarelo pl-4">Nossas Academias Associadas e Parceiras Oficiais</p>
+</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
     {% for academia in academias %}
-    <div class="bg-white text-brasilAzul rounded-lg overflow-hidden shadow-lg flex flex-col">
+    <div class="group bg-cardBg rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 hover:border-brasilVerde/40 transition-all duration-500 flex flex-col transform hover:-translate-y-2">
         
-        <div class="w-full h-72 bg-gray-100 flex items-center justify-center p-4">
+        <div class="relative w-full h-80 bg-black/40 flex items-center justify-center p-12 group-hover:bg-black/20 transition-colors duration-500">
             {% if academia.logo %}
-            <img src="{{ academia.logo.url }}" alt="Logo {{ academia.nome }}" class="max-w-full max-h-full object-contain">
+            <img src="{{ academia.logo.url }}" alt="Logo {{ academia.nome }}" class="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] group-hover:scale-110 transition-transform duration-700">
             {% else %}
-            <span class="text-gray-400 font-bold uppercase">Sem Logo</span>
+            <div class="text-gray-700 font-black uppercase italic tracking-tighter text-4xl opacity-20">No Logo</div>
             {% endif %}
+            
+            <!-- Floating Badge -->
+            <div class="absolute top-6 right-6 bg-brasilVerde text-white text-[10px] font-black px-4 py-2 rounded-full shadow-2xl tracking-widest uppercase">Afiliada Oficial</div>
         </div>
         
-        <div class="p-6 flex-grow">
-            <h3 class="text-2xl font-bold mb-2">{{ academia.nome }}</h3>
-            <p class="text-gray-700 mb-6">{{ academia.endereco }}</p>
+        <div class="p-8 flex-grow flex flex-col bg-gradient-to-b from-transparent to-black/20">
+            <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 group-hover:text-brasilVerde transition-colors">{{ academia.nome }}</h3>
+            
+            <div class="flex items-start gap-3 mb-8">
+                <svg class="w-5 h-5 text-brasilAmarelo shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <p class="text-gray-400 font-medium text-sm leading-relaxed">{{ academia.endereco }}</p>
+            </div>
+
             {% if academia.link_google_maps %}
-            <a href="{{ academia.link_google_maps }}" target="_blank" class="inline-block bg-brasilVerde text-white font-bold py-2 px-6 rounded hover:bg-green-700 transition">
-                Ver no Mapa
+            <a href="{{ academia.link_google_maps }}" target="_blank" class="mt-auto group/btn flex items-center justify-between bg-white/5 hover:bg-brasilVerde text-white font-black py-4 px-6 rounded-2xl transition-all duration-300 border border-white/10 hover:border-brasilVerde">
+                <span class="text-xs uppercase tracking-widest">Localizar Unidade</span>
+                <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </a>
             {% endif %}
         </div>
     </div>
     {% empty %}
-    <p class="text-gray-300 col-span-2 text-center py-10">Nenhuma academia associada até o momento.</p>
+    <div class="col-span-full py-20 text-center">
+        <p class="text-gray-600 font-black uppercase tracking-[0.5em] text-sm animate-pulse">Aguardando novos registros de academias...</p>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

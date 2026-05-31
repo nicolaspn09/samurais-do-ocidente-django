@@ -1,106 +1,144 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="text-center py-10 border-b border-gray-700 mb-10">
-    <h2 class="text-4xl md:text-5xl font-bold text-brasilAmarelo mb-4">Samurais do Ocidente</h2>
-    <p class="text-lg md:text-xl text-gray-300">Federação Oficial de Artes Marciais. Acompanhe nossas notícias e filie-se.</p>
+<!-- Hero Section -->
+<div class="relative rounded-3xl overflow-hidden mb-16 h-[500px] flex items-center justify-center border border-white/10 shadow-2xl">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative z-10 text-center px-6">
+        <h1 class="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter uppercase italic text-shadow-gold">
+            Samurais <span class="text-brasilAmarelo">do Ocidente</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 font-bold max-w-2xl mx-auto mb-8">
+            Associação Oficial de Artes Marciais. <br>
+            <span class="text-brasilVerde">Disciplina, Honra e Excelência.</span>
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'afiliar' %}" class="bg-brasilAmarelo text-brasilAzul font-black px-10 py-4 rounded-full text-lg hover:scale-105 transition-transform shadow-xl">FILIE-SE AGORA</a>
+            <a href="{% url 'atletas' %}" class="bg-white/10 backdrop-blur-md text-white border border-white/20 font-black px-10 py-4 rounded-full text-lg hover:bg-white/20 transition-all shadow-xl">NOSSOS ATLETAS</a>
+        </div>
+    </div>
 </div>
 
-<h3 class="text-2xl font-bold text-white border-l-4 border-brasilVerde pl-3 mb-6">Últimas Notícias</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-    {% for noticia in noticias %}
-    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 flex flex-col">
-        {% if noticia.imagem %}
-        <img src="{{ noticia.imagem.url }}" class="w-full h-48 object-cover">
-        {% else %}
-        <div class="w-full h-48 bg-gray-700 flex items-center justify-center text-gray-500">Sem imagem</div>
-        {% endif %}
-        <div class="p-5 flex flex-col flex-grow">
-            <span class="text-xs text-brasilAmarelo font-bold mb-1">{{ noticia.data_publicacao|date:"d M Y" }}</span>
-            <h4 class="text-xl font-bold text-white mb-2">{{ noticia.titulo }}</h4>
-            <p class="text-gray-400 text-sm mb-4 flex-grow">{{ noticia.resumo }}</p>
-            <button onclick="abrirModal('noticia-{{ noticia.id }}')" class="mt-auto bg-brasilVerde hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition w-full text-center">
-                Ler Notícia Completa
-            </button>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <!-- Notícias Section -->
+    <div class="lg:col-span-2">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-3xl font-black uppercase tracking-tighter border-l-8 border-brasilVerde pl-4">Últimas Notícias</h3>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for noticia in noticias %}
+            <div class="group bg-cardBg rounded-2xl overflow-hidden border border-white/5 hover:border-brasilAmarelo/30 transition-all duration-500 shadow-2xl flex flex-col">
+                <div class="relative h-56 overflow-hidden">
+                    {% if noticia.imagem %}
+                    <img src="{{ noticia.imagem.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    {% else %}
+                    <div class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600 font-bold uppercase">Sem Imagem</div>
+                    {% endif %}
+                    <div class="absolute top-4 left-4 bg-brasilVerde text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg">NOTÍCIA</div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="text-[11px] text-brasilAmarelo font-bold mb-2 tracking-widest">{{ noticia.data_publicacao|date:"d M Y"|upper }}</span>
+                    <h4 class="text-xl font-bold text-white mb-3 group-hover:text-brasilAmarelo transition-colors line-clamp-2">{{ noticia.titulo }}</h4>
+                    <p class="text-gray-400 text-sm mb-6 flex-grow line-clamp-3 leading-relaxed">{{ noticia.resumo }}</p>
+                    <button onclick="abrirModal('noticia-{{ noticia.id }}')" class="mt-auto border border-brasilVerde/30 group-hover:bg-brasilVerde group-hover:text-white text-brasilVerde font-black py-3 px-4 rounded-xl transition-all duration-300 w-full text-center text-xs tracking-widest uppercase">
+                        Ver Mais Detalhes
+                    </button>
+                </div>
+            </div>
+
+            <div id="noticia-{{ noticia.id }}" class="fixed inset-0 bg-black/90 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                <div class="bg-cardBg border border-white/10 rounded-3xl max-w-3xl w-full p-8 text-left relative max-h-[90vh] flex flex-col shadow-3xl">
+                    <button onclick="fecharModal('noticia-{{ noticia.id }}')" class="absolute -top-4 -right-4 bg-brasilAmarelo text-brasilAzul p-2 rounded-full hover:scale-110 transition-transform shadow-xl z-[110]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <h3 class="text-3xl font-black text-white mb-2 pr-8 italic uppercase tracking-tighter">{{ noticia.titulo }}</h3>
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="text-sm font-bold text-brasilAmarelo tracking-widest">{{ noticia.data_publicacao|date:"d M Y"|upper }}</span>
+                        <div class="h-1 w-20 bg-brasilVerde"></div>
+                    </div>
+                    
+                    <div class="overflow-y-auto pr-4 custom-scrollbar text-gray-300 space-y-6">
+                        {% if noticia.imagem %}
+                        <img src="{{ noticia.imagem.url }}" class="w-full rounded-2xl mb-8 shadow-2xl border border-white/5">
+                        {% endif %}
+                        <div class="whitespace-pre-line text-lg leading-relaxed font-medium">{{ noticia.conteudo }}</div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 font-bold italic">Aguardando novas atualizações...</p>
+            {% endfor %}
         </div>
     </div>
 
-    <div id="noticia-{{ noticia.id }}" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-700 rounded-lg max-w-2xl w-full p-6 text-left relative max-h-[90vh] flex flex-col">
-            <button onclick="fecharModal('noticia-{{ noticia.id }}')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h3 class="text-2xl font-bold text-white mb-2 pr-8">{{ noticia.titulo }}</h3>
-            <span class="text-sm text-brasilAmarelo mb-4">{{ noticia.data_publicacao|date:"d M Y" }}</span>
-            
-            <div class="overflow-y-auto pr-2 custom-scrollbar text-gray-300 space-y-4">
-                {% if noticia.imagem %}
-                <img src="{{ noticia.imagem.url }}" class="w-full rounded mb-4">
+    <!-- Eventos Section -->
+    <div class="lg:col-span-1">
+        <h3 class="text-3xl font-black uppercase tracking-tighter border-l-8 border-brasilAmarelo pl-4 mb-8">Calendário</h3>
+        
+        <div class="space-y-4">
+            {% for evento in eventos %}
+            <div class="bg-cardBg p-6 rounded-2xl border-l-8 {% if evento.encerrado %}border-gray-700 opacity-50 grayscale{% else %}border-brasilAmarelo shadow-xl hover:translate-x-2 transition-transform duration-300{% endif %} flex flex-col gap-4 relative overflow-hidden">
+                {% if not evento.encerrado %}
+                <div class="absolute top-0 right-0 p-1 bg-brasilAmarelo/10 rounded-bl-xl">
+                    <div class="w-2 h-2 rounded-full bg-brasilAmarelo animate-pulse"></div>
+                </div>
                 {% endif %}
-                <div class="whitespace-pre-line">{{ noticia.conteudo }}</div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="bg-black/50 p-3 rounded-xl text-center min-w-[70px] border border-white/5">
+                        <span class="block text-3xl font-black {% if evento.encerrado %}text-gray-500{% else %}text-brasilVerde{% endif %} leading-none tracking-tighter">{{ evento.data_evento|date:"d" }}</span>
+                        <span class="block text-[10px] text-gray-400 uppercase font-black tracking-widest mt-1">{{ evento.data_evento|date:"M" }}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-white leading-tight uppercase tracking-tight text-lg">
+                            {{ evento.titulo }}
+                        </h4>
+                        {% if evento.encerrado %}
+                        <span class="inline-block mt-1 text-[9px] bg-gray-700 text-gray-400 px-2 py-0.5 rounded font-black uppercase tracking-widest">Encerrado</span>
+                        {% else %}
+                        <span class="inline-block mt-1 text-[9px] bg-brasilVerde/20 text-brasilVerde px-2 py-0.5 rounded font-black uppercase tracking-widest">Próximo</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-2">
+                    <p class="text-xs text-gray-400 font-bold flex items-center gap-2">
+                        <svg class="w-4 h-4 text-brasilAmarelo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        {{ evento.local|upper }}
+                    </p>
+                    {% if evento.descricao %}
+                    <p class="text-sm text-gray-400 leading-relaxed italic">{{ evento.descricao|truncatewords:20 }}</p>
+                    {% endif %}
+                </div>
             </div>
+            {% empty %}
+            <p class="text-gray-500 font-bold italic">Nenhum evento programado.</p>
+            {% endfor %}
+        </div>
+
+        <div class="mt-8 p-6 bg-brasilAzul rounded-2xl shadow-2xl relative overflow-hidden group cursor-pointer">
+            <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                <img src="{% static 'img/LogoSamurais.png' %}" class="h-32">
+            </div>
+            <h5 class="text-xl font-black text-white uppercase italic mb-2 tracking-tighter">Faça parte da história</h5>
+            <p class="text-sm text-white/70 font-bold mb-4">Filie sua academia ou torne-se um atleta oficial hoje mesmo.</p>
+            <a href="{% url 'afiliar' %}" class="inline-block bg-white text-brasilAzul font-black px-6 py-2 rounded-lg text-xs tracking-widest hover:bg-brasilAmarelo transition-colors">QUERO COMEÇAR</a>
         </div>
     </div>
-    {% empty %}
-    <p class="text-gray-400 col-span-3">Nenhuma notícia publicada no momento.</p>
-    {% endfor %}
-</div>
-
-<div class="text-center py-10 border-b border-gray-700 mb-10">
-    <h2 class="text-4xl md:text-5xl font-bold text-brasilAmarelo mb-4">Samurais do Ocidente</h2>
-    <p class="text-lg md:text-xl text-gray-300">Federação Oficial de Artes Marciais.</p>
-</div>
-
-<h3 class="text-2xl font-bold text-white border-l-4 border-brasilVerde pl-3 mb-6">Próximos Eventos e Treinos</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-    {% for evento in eventos %}
-    <div class="bg-gray-800 p-5 rounded-lg border-l-4 border-brasilAmarelo shadow-md flex flex-col">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="bg-black p-3 rounded text-center min-w-[60px]">
-                <span class="block text-2xl font-bold text-brasilVerde leading-none">{{ evento.data_evento|date:"d" }}</span>
-                <span class="block text-xs text-gray-400 uppercase">{{ evento.data_evento|date:"M" }}</span>
-            </div>
-            <div>
-                <h4 class="font-bold text-white leading-tight">{{ evento.titulo }}</h4>
-                <p class="text-xs text-gray-400 mt-1"><svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>{{ evento.local }}</p>
-            </div>
-        </div>
-        {% if evento.descricao %}
-        <p class="text-sm text-gray-300 mt-2">{{ evento.descricao|truncatewords:15 }}</p>
-        {% endif %}
-    </div>
-    {% empty %}
-    <p class="text-gray-400">Nenhum evento agendado no momento.</p>
-    {% endfor %}
 </div>
 
 <script>
-    // Controle do formulário
-    function mudarFormulario(tipo) {
-        document.getElementById('form-atleta').classList.add('hidden');
-        document.getElementById('form-academia').classList.add('hidden');
-        document.getElementById('btn-form-atleta').classList.replace('opacity-100', 'opacity-60');
-        document.getElementById('btn-form-atleta').classList.replace('bg-brasilVerde', 'bg-gray-700');
-        document.getElementById('btn-form-atleta').classList.replace('border-green-700', 'border-gray-900');
-        document.getElementById('btn-form-academia').classList.replace('opacity-100', 'opacity-60');
-        document.getElementById('btn-form-academia').classList.replace('bg-brasilVerde', 'bg-gray-700');
-        document.getElementById('btn-form-academia').classList.replace('border-green-700', 'border-gray-900');
-
-        if (tipo === 'atleta') {
-            document.getElementById('form-atleta').classList.remove('hidden');
-            document.getElementById('btn-form-atleta').classList.replace('opacity-60', 'opacity-100');
-            document.getElementById('btn-form-atleta').classList.replace('bg-gray-700', 'bg-brasilVerde');
-            document.getElementById('btn-form-atleta').classList.replace('border-gray-900', 'border-green-700');
-        } else {
-            document.getElementById('form-academia').classList.remove('hidden');
-            document.getElementById('btn-form-academia').classList.replace('opacity-60', 'opacity-100');
-            document.getElementById('btn-form-academia').classList.replace('bg-gray-700', 'bg-brasilVerde');
-            document.getElementById('btn-form-academia').classList.replace('border-gray-900', 'border-green-700');
-        }
-    }
-
-    // Modais das notícias
     function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
 </script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(254, 223, 0, 0.3); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(254, 223, 0, 0.5); }
+    .shadow-3xl { shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7); }
+</style>
 {% endblock %}
