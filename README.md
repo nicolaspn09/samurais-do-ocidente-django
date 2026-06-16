@@ -1,6 +1,6 @@
-# Site Samurais do Ocidente
+# Associação de artes marciais samurais do ocidente
 
-Este repositório contém o **site institucional e o portal dos atletas** da associação **Samurais do Ocidente**. O objetivo é divulgar a entidade, listar academias e atletas, receber pedidos de filiação e permitir que cada atleta (quando vinculado) acesse e atualize o próprio perfil.
+Este repositório contém o **site institucional e o portal dos atletas** da **Associação de artes marciais samurais do ocidente**. O objetivo é divulgar a entidade, listar academias e atletas, receber pedidos de filiação e permitir que cada atleta (quando vinculado) acesse e atualize o próprio perfil.
 
 ---
 

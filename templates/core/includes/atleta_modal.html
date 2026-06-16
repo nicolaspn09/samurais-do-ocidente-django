@@ -1,0 +1,57 @@
+<!-- Modal for Detail -->
+<div id="modal-{{ atleta.id }}" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-md" onclick="fecharModal('modal-{{ atleta.id }}')">
+    <div class="bg-cardBg border border-white/10 rounded-[2.5rem] max-w-lg w-full p-10 text-left relative shadow-3xl overflow-hidden" onclick="event.stopPropagation()">
+        <!-- Background Accent -->
+        <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-20" style="background-color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};"></div>
+        
+        <button onclick="fecharModal('modal-{{ atleta.id }}')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <div class="flex flex-col items-center mb-10 text-center">
+            <div class="relative mb-6">
+                {% if atleta.foto %}
+                <img src="{{ atleta.foto.url }}" class="w-40 h-40 rounded-3xl object-cover shadow-3xl border-4 border-black">
+                {% else %}
+                <div class="w-40 h-40 rounded-3xl bg-gray-900 border-4 border-black flex items-center justify-center text-gray-600 font-black">SEM FOTO</div>
+                {% endif %}
+                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black border-2 rounded-xl shadow-2xl min-w-[150px]" style="border-color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};">
+                    <span class="text-sm font-black uppercase tracking-[0.2em]" style="color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};">
+                        {{ atleta.faixa_atual.nome }}{% if atleta.faixa_atual.is_preta and atleta.dan_atual %} {{ atleta.dan_atual }}º DAN{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter">{{ atleta.nome }}</h3>
+            <p class="text-brasilAmarelo font-black uppercase tracking-widest text-xs mt-2">{{ atleta.academia.nome|default:"Atleta Independente" }}</p>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex items-center gap-4">
+                <h4 class="font-black text-gray-500 text-xs uppercase tracking-[0.3em]">Trajetória de Honra</h4>
+                <div class="h-[1px] flex-grow bg-white/5"></div>
+            </div>
+            
+            <div class="space-y-4 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                {% for historico in atleta.historico_faixas.all %}
+                <div class="flex justify-between items-center bg-black/40 p-5 rounded-2xl border-l-4 group hover:bg-black/60 transition-colors" style="border-color: {{ historico.faixa.cor_hex|default:'#FFF' }};">
+                    <div>
+                        <span class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Graduação</span>
+                        <span class="text-lg font-black text-white uppercase italic">
+                            {{ historico.faixa.nome }}{% if historico.faixa.is_preta and historico.dan %} {{ historico.dan }}º DAN{% endif %}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Data</span>
+                        <span class="text-sm font-bold text-brasilAmarelo">{{ historico.data_graduacao|date:"d / m / Y" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-10">
+                    <p class="text-gray-600 font-bold uppercase tracking-widest text-xs">Aguardando registro de histórico...</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

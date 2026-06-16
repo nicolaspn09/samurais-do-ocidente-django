@@ -1,9 +1,11 @@
+from django.db import models
 from django.contrib import admin
 from .models import Modalidade, Academia, Faixa, Atleta, HistoricoGraduacao, Midia, Noticia, PedidoAfiliacaoAtleta, PedidoAfiliacaoAcademia, Evento
 
 @admin.register(Faixa)
 class FaixaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'ordem', 'cor_hex')
+    list_display = ('nome', 'ordem', 'is_preta', 'cor_hex')
+    list_editable = ('is_preta',)
     ordering = ('ordem',)
 
 @admin.register(Modalidade)
@@ -12,18 +14,20 @@ class ModalidadeAdmin(admin.ModelAdmin):
 
 @admin.register(Academia)
 class AcademiaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'responsavel', 'endereco', 'ativo')
-    list_filter = ('ativo',)
+    list_display = ('nome', 'nome_responsavel', 'endereco', 'ativo')
+    list_filter = ('ativo', 'modalidades')
+    filter_horizontal = ('professores', 'modalidades')
     
     # Filtra para o Professor ver apenas a própria academia
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.filter(responsavel=request.user)
+        return qs.filter(models.Q(responsavel=request.user) | models.Q(professores=request.user)).distinct()
 
 class HistoricoGraduacaoInline(admin.TabularInline):
     model = HistoricoGraduacao
+    fields = ('faixa', 'dan', 'data_graduacao', 'examinador')
     extra = 1
     # Apenas o Presidente pode adicionar/mudar histórico de faixa
     def has_add_permission(self, request, obj=None):
@@ -35,14 +39,14 @@ class HistoricoGraduacaoInline(admin.TabularInline):
 
 @admin.register(Atleta)
 class AtletaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'academia', 'faixa_atual', 'ativo')
+    list_display = ('nome', 'academia', 'faixa_atual', 'dan_atual', 'ativo')
     list_filter = ('ativo', 'academia', 'faixa_atual', 'modalidades')
     inlines = [HistoricoGraduacaoInline]
 
     def get_readonly_fields(self, request, obj=None):
         # Bloqueia a alteração de faixa para quem não é o Presidente
         if not request.user.is_superuser:
-            return ('faixa_atual',)
+            return ('faixa_atual', 'dan_atual')
         return ()
 
     def get_queryset(self, request):

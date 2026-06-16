@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="mb-16">
-    <h2 class="text-5xl font-black text-white italic uppercase tracking-tighter mb-4">Centros de <span class="text-brasilVerde text-shadow-gold">Excelência</span></h2>
+    <h2 class="text-5xl font-black text-white italic uppercase tracking-tighter mb-4">Centros de <span class="text-brasilAmarelo text-shadow-gold">Excelência</span></h2>
     <p class="text-gray-400 font-bold uppercase tracking-widest text-xs border-l-4 border-brasilAmarelo pl-4">Nossas Academias Associadas e Parceiras Oficiais</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
     {% for academia in academias %}
-    <div class="group bg-cardBg rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 hover:border-brasilVerde/40 transition-all duration-500 flex flex-col transform hover:-translate-y-2">
+    <div onclick="abrirModal('modal-academia-{{ academia.id }}')" class="group bg-cardBg rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5 hover:border-brasilVerde/40 transition-all duration-500 flex flex-col transform hover:-translate-y-2 cursor-pointer">
         
         <div class="relative w-full h-80 bg-black/40 flex items-center justify-center p-12 group-hover:bg-black/20 transition-colors duration-500">
             {% if academia.logo %}
@@ -24,17 +24,30 @@
         <div class="p-8 flex-grow flex flex-col bg-gradient-to-b from-transparent to-black/20">
             <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter mb-4 group-hover:text-brasilVerde transition-colors">{{ academia.nome }}</h3>
             
-            <div class="flex items-start gap-3 mb-8">
-                <svg class="w-5 h-5 text-brasilAmarelo shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <p class="text-gray-400 font-medium text-sm leading-relaxed">{{ academia.endereco }}</p>
+            <div class="space-y-4 mb-8">
+                {% if academia.endereco and "NÃO CADASTRADO" not in academia.endereco|upper %}
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-brasilAmarelo shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <p class="text-gray-400 font-medium text-sm leading-relaxed line-clamp-2">{{ academia.endereco }}</p>
+                </div>
+                {% endif %}
+
+                <div class="flex flex-wrap gap-2">
+                    {% for mod in academia.modalidades.all|slice:":3" %}
+                    <span class="text-[9px] font-black bg-white/5 border border-white/10 text-brasilAmarelo px-2 py-1 rounded-md uppercase tracking-tighter">
+                        {{ mod.nome }}
+                    </span>
+                    {% endfor %}
+                    {% if academia.modalidades.count > 3 %}
+                    <span class="text-[9px] font-black text-gray-500 px-1 py-1 uppercase">+{{ academia.modalidades.count|add:"-3" }}</span>
+                    {% endif %}
+                </div>
             </div>
 
-            {% if academia.link_google_maps %}
-            <a href="{{ academia.link_google_maps }}" target="_blank" class="mt-auto group/btn flex items-center justify-between bg-white/5 hover:bg-brasilVerde text-white font-black py-4 px-6 rounded-2xl transition-all duration-300 border border-white/10 hover:border-brasilVerde">
-                <span class="text-xs uppercase tracking-widest">Localizar Unidade</span>
+            <span class="mt-auto group/btn flex items-center justify-between bg-white/5 hover:bg-brasilVerde text-white font-black py-4 px-6 rounded-2xl transition-all duration-300 border border-white/10 hover:border-brasilVerde">
+                <span class="text-xs uppercase tracking-widest">Ver Detalhes</span>
                 <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </a>
-            {% endif %}
+            </span>
         </div>
     </div>
     {% empty %}
@@ -43,4 +56,92 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- Render all academy modals at the bottom -->
+{% for academia in academias %}
+<div id="modal-academia-{{ academia.id }}" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-md" onclick="fecharModal('modal-academia-{{ academia.id }}')">
+    <div class="bg-cardBg border border-white/10 rounded-[2.5rem] max-w-2xl w-full p-10 text-left relative shadow-3xl overflow-hidden" onclick="event.stopPropagation()">
+        <button onclick="fecharModal('modal-academia-{{ academia.id }}')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="flex flex-col md:flex-row gap-8 items-center md:items-start mb-10">
+            <div class="w-48 h-48 bg-black/40 rounded-3xl p-6 flex items-center justify-center shrink-0">
+                {% if academia.logo %}
+                <img src="{{ academia.logo.url }}" class="max-w-full max-h-full object-contain">
+                {% else %}
+                <span class="text-gray-700 font-black">SEM LOGO</span>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="text-4xl font-black text-white uppercase italic tracking-tighter mb-2">{{ academia.nome }}</h3>
+                <p class="text-brasilVerde font-black uppercase tracking-[0.3em] text-xs mb-6">Academia Afiliada Oficial</p>
+                
+                <div class="space-y-4">
+                    {% if academia.endereco and "NÃO CADASTRADO" not in academia.endereco|upper %}
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-brasilAmarelo shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <p class="text-gray-300 text-sm leading-relaxed">{{ academia.endereco }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-brasilVerde shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <div>
+                            <span class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Mestre Responsável</span>
+                            <p class="text-white font-bold">
+                                {% if academia.nome_responsavel %}
+                                    {{ academia.nome_responsavel }}
+                                {% elif academia.responsavel.perfil.nome_professor %}
+                                    {{ academia.responsavel.perfil.nome_professor }}
+                                {% else %}
+                                    {{ academia.responsavel.get_full_name|default:academia.responsavel.username|default:"Não informado" }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if academia.professores.all %}
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-brasilVerde shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <div>
+                            <span class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Professores Auxiliares</span>
+                            <p class="text-white font-bold">
+                                {% for prof in academia.professores.all %}
+                                    {{ prof.perfil.nome_professor|default:prof.get_full_name|default:prof.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h4 class="font-black text-gray-500 text-xs uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
+                Modalidades Disponíveis
+                <div class="h-[1px] flex-grow bg-white/5"></div>
+            </h4>
+            <div class="flex flex-wrap gap-3">
+                {% for mod in academia.modalidades.all %}
+                <div class="bg-black/40 border border-white/5 px-6 py-3 rounded-2xl flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-brasilAmarelo"></div>
+                    <span class="text-sm font-black text-white uppercase tracking-wider">{{ mod.nome }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-600 italic text-sm">Nenhuma modalidade cadastrada.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if academia.link_google_maps %}
+        <a href="{{ academia.link_google_maps }}" target="_blank" class="w-full flex items-center justify-center gap-3 bg-brasilVerde hover:bg-green-600 text-white font-black py-4 rounded-2xl transition-all shadow-2xl">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span class="text-xs uppercase tracking-widest">Abrir no Google Maps</span>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

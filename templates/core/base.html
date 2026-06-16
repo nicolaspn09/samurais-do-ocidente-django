@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samurais do Ocidente</title>
+    <title>Associação de artes marciais samurais do ocidente</title>
     <link rel="icon" type="image/png" href="{% static 'img/LogoSamurais.png' %}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,10 +43,43 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        /* Loading Spinner */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255,255,255,0.1);
+            border-bottom-color: #FEDF00;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="text-white min-h-screen flex flex-col font-sans relative">
     
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader mb-6"></div>
+        <p class="text-brasilAmarelo font-black uppercase tracking-[0.4em] text-[10px] animate-pulse">Carregando Conteúdo</p>
+    </div>
+
     <!-- Background Image with Overlay -->
     <div class="fixed inset-0 z-[-1]" style="background-image: url('{% static 'img/Back.png' %}'); background-size: cover; background-position: center; background-attachment: fixed;">
         <div class="absolute inset-0 bg-brasilAzul/70"></div>
@@ -106,10 +139,10 @@
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-4 opacity-80 transition-all">
                 <img src="{% static 'img/LogoSamurais.png' %}" class="h-12">
-                <span class="font-black italic uppercase tracking-tighter text-xl text-white">Samurais <span class="text-brasilAmarelo">do Ocidente</span></span>
+                <span class="font-black italic uppercase tracking-tighter text-xl text-white">Samurais <span class="text-brasilAmarelo">Do Ocidente</span></span>
             </div>
             
-            <p class="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] text-center md:text-left">&copy; 2026. Disciplina, Honra e Excelência. <br class="md:hidden"> Associação Samurais do Ocidente.</p>
+            <p class="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em] text-center md:text-left">&copy; 2026. Disciplina, Honra e Excelência. <br class="md:hidden"> Associação de Artes Marciais Samurais do Ocidente.</p>
             
             <div class="flex gap-10">
                 <a href="#" class="text-white/60 hover:text-brasilAmarelo transition-colors uppercase font-black text-[10px] tracking-widest">Privacidade</a>
@@ -118,5 +151,43 @@
         </div>
     </footer>
 
+    <script>
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        // Trigger loading on link clicks (except modals/anchors)
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.href.includes('#') && !link.target && !link.onclick) {
+                // Check if it's not a download link or something
+                if (!link.hasAttribute('download')) {
+                    showLoading();
+                }
+            }
+        });
+
+        // Trigger loading on form submissions
+        document.addEventListener('submit', (e) => {
+            showLoading();
+        });
+
+        function abrirModal(idModal) { 
+            const modal = document.getElementById(idModal);
+            if(modal) {
+                modal.style.display = 'flex';
+                modal.classList.remove('hidden'); 
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function fecharModal(idModal) { 
+            const modal = document.getElementById(idModal);
+            if(modal) {
+                modal.style.display = 'none';
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
 </body>
 </html>

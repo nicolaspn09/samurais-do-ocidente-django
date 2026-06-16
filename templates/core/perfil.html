@@ -5,7 +5,7 @@
         
         <div class="w-full md:w-1/2">
             <div class="bg-brasilAzul rounded-xl overflow-hidden shadow-2xl border border-gray-700 relative">
-                <div class="h-2 w-full bg-brasilAmarelo"></div>
+                <div class="h-2 w-full" style="background-color: {{ atleta.faixa_atual.cor_hex|default:'#FEDF00' }};"></div>
                 
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-6">
@@ -28,7 +28,7 @@
                             
                             <p class="text-brasilAmarelo font-bold mt-1">
                                 {% if atleta.faixa_atual %}
-                                    {{ atleta.faixa_atual.nome }}
+                                    {{ atleta.faixa_atual.nome }}{% if atleta.faixa_atual.is_preta and atleta.dan_atual %} {{ atleta.dan_atual }}º DAN{% endif %}
                                 {% else %}
                                     Faixa Pendente
                                 {% endif %}

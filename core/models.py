@@ -11,7 +11,10 @@ class Modalidade(models.Model):
         return self.nome
 
 class Academia(models.Model):
-    responsavel = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='academia')
+    responsavel = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='academia_antiga')
+    nome_responsavel = models.CharField(max_length=200, blank=True, help_text="Nome do Mestre Responsável")
+    professores = models.ManyToManyField(User, related_name='academias_professor', blank=True)
+    modalidades = models.ManyToManyField(Modalidade, related_name='academias', blank=True)
     nome = models.CharField(max_length=200)
     endereco = models.CharField(max_length=255)
     link_google_maps = models.URLField(blank=True)
@@ -26,10 +29,34 @@ class Academia(models.Model):
     def __str__(self):
         return self.nome
 
+class PerfilUsuario(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
+    nome_professor = models.CharField(max_length=255, blank=True, help_text="Nome formatado do professor")
+
+    def __str__(self):
+        return self.nome_professor or self.user.username
+
+    def formatar_nome_pelo_username(self):
+        if self.user.username:
+            partes = self.user.username.split('-')
+            self.nome_professor = " ".join([p.capitalize() for p in partes])
+            self.save()
+
+# Signals para criar perfil automaticamente
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def criar_perfil_usuario(sender, instance, created, **kwargs):
+    if created:
+        perfil = PerfilUsuario.objects.create(user=instance)
+        perfil.formatar_nome_pelo_username()
+
 class Faixa(models.Model):
     nome = models.CharField(max_length=50)
     ordem = models.IntegerField(help_text="Define a hierarquia da faixa para ordenação na tela")
     cor_hex = models.CharField(max_length=7, default="#FFFFFF", help_text="Cor da faixa em hexadecimal (ex: #000000)")
+    is_preta = models.BooleanField(default=False, verbose_name="É Faixa Preta?")
 
     class Meta:
         ordering = ['ordem']
@@ -55,14 +82,28 @@ class Atleta(models.Model):
     
     # null=True e blank=True permitem que o atleta exista sem uma faixa registrada
     faixa_atual = models.ForeignKey(Faixa, on_delete=models.RESTRICT, null=True, blank=True, related_name='atletas_atuais')
+    dan_atual = models.IntegerField(null=True, blank=True, verbose_name="Dan (Se faixa preta)")
     ativo = models.BooleanField(default=True)
     
+    def save(self, *args, **kwargs):
+        # Limpa o nome removendo espaços e pontos no início/fim
+        if self.nome:
+            self.nome = self.nome.strip('. ')
+        
+        # Lógica de Faixa Preta: Se for preta e Dan for 0 ou nulo, coloca 1
+        if self.faixa_atual and self.faixa_atual.is_preta:
+            if not self.dan_atual or self.dan_atual == 0:
+                self.dan_atual = 1
+        
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.nome
 
 class HistoricoGraduacao(models.Model):
     atleta = models.ForeignKey(Atleta, on_delete=models.CASCADE, related_name='historico_faixas') 
     faixa = models.ForeignKey(Faixa, on_delete=models.RESTRICT)
+    dan = models.IntegerField(null=True, blank=True, verbose_name="Dan")
     data_graduacao = models.DateField()
     examinador = models.CharField(max_length=100, help_text="Quem aplicou o exame")
 
@@ -70,6 +111,8 @@ class HistoricoGraduacao(models.Model):
         ordering = ['-data_graduacao']
 
     def __str__(self):
+        if self.dan:
+            return f"{self.atleta.nome} - {self.faixa.nome} {self.dan}º Dan em {self.data_graduacao}"
         return f"{self.atleta.nome} - {self.faixa.nome} em {self.data_graduacao}"
 
 class Midia(models.Model):

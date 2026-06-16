@@ -86,6 +86,12 @@
                 </div>
                 {% endif %}
                 
+                {% if evento.imagem_destaque %}
+                <div class="h-32 w-full rounded-xl overflow-hidden mb-2">
+                    <img src="{{ evento.imagem_destaque.url }}" class="w-full h-full object-cover">
+                </div>
+                {% endif %}
+
                 <div class="flex items-center gap-4">
                     <div class="bg-black/50 p-3 rounded-xl text-center min-w-[70px] border border-white/5">
                         <span class="block text-3xl font-black {% if evento.encerrado %}text-gray-500{% else %}text-brasilVerde{% endif %} leading-none tracking-tighter">{{ evento.data_evento|date:"d" }}</span>
@@ -129,16 +135,4 @@
     </div>
 </div>
 
-<script>
-    function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function fecharModal(id) { document.getElementById(id).classList.add('hidden'); }
-</script>
-
-<style>
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(254, 223, 0, 0.3); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(254, 223, 0, 0.5); }
-    .shadow-3xl { shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7); }
-</style>
 {% endblock %}

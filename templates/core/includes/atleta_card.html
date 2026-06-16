@@ -1,0 +1,14 @@
+<div onclick="abrirModal('modal-{{ atleta.id }}')" class="group relative bg-cardBg rounded-3xl p-6 shadow-2xl cursor-pointer transform hover:-translate-y-2 transition-all duration-500 border border-white/5 hover:border-brasilAmarelo/50 h-full flex flex-col justify-between">
+    <div class="relative mb-6">
+        {% if atleta.foto %}
+        <img src="{{ atleta.foto.url }}" class="w-24 h-24 mx-auto rounded-2xl object-cover shadow-2xl border-4 border-black group-hover:scale-105 transition-transform duration-500">
+        {% else %}
+        <div class="w-24 h-24 mx-auto rounded-2xl bg-gray-900 border-4 border-black flex items-center justify-center text-[10px] text-gray-600 font-black uppercase tracking-tighter text-center px-2">Sem Imagem Ofic.</div>
+        {% endif %}
+    </div>
+
+    <div class="text-center">
+        <p class="font-black text-white text-sm uppercase tracking-tight line-clamp-2 group-hover:text-brasilAmarelo transition-colors h-10">{{ atleta.nome }}</p>
+        <p class="text-[10px] text-gray-500 font-bold mt-2 uppercase tracking-widest line-clamp-1">{{ atleta.academia.nome|default:"Independente" }}</p>
+    </div>
+</div>

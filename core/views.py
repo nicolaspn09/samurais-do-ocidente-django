@@ -1,3 +1,4 @@
+from django.db import models
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
@@ -50,34 +51,93 @@ def afiliar(request):
     })
 
 def academias_list(request):
-    academias = Academia.objects.filter(ativo=True)
+    academias = Academia.objects.filter(ativo=True).prefetch_related('professores', 'modalidades').order_by('nome')
     return render(request, 'core/academias.html', {'academias': academias})
 
 def atletas_list(request):
+    # Filtros da URL
+    modalidade_id = request.GET.get('modalidade')
+    academia_id = request.GET.get('academia')
+
     # Busca apenas atletas ativos
     atletas_ativos = Atleta.objects.filter(ativo=True).select_related('academia', 'faixa_atual').prefetch_related('historico_faixas')
     
-    # Agrupar por nome e pegar a maior ordem de faixa (graduação mais alta)
-    atletas_unicos = {}
+    # Aplica filtros se existirem
+    if modalidade_id:
+        atletas_ativos = atletas_ativos.filter(modalidades__id=modalidade_id)
+    if academia_id:
+        atletas_ativos = atletas_ativos.filter(academia__id=academia_id)
+
+    # Agrupar por nome e pegar o registro com a graduação "mais alta"
+    atletas_unicos_dict = {} # nome_norm -> (atleta_obj, score)
+    
+    data_minima = datetime(1900, 1, 1).date()
+
     for atleta in atletas_ativos:
-        nome_upper = atleta.nome.strip().upper()
-        ordem_atual = atleta.faixa_atual.ordem if atleta.faixa_atual else -1
+        # Normalização agressiva para evitar duplicatas por erro de digitação (. no início, espaços extras)
+        nome_norm = atleta.nome.strip('. ').upper()
         
-        if nome_upper not in atletas_unicos or ordem_atual > (atletas_unicos[nome_upper].faixa_atual.ordem if atletas_unicos[nome_upper].faixa_atual else -1):
-            atletas_unicos[nome_upper] = atleta
+        # Pega a maior data do histórico deste registro
+        ultima_grad = atleta.historico_faixas.aggregate(models.Max('data_graduacao'))['data_graduacao__max'] or data_minima
+        
+        # Score de importância para decidir qual registro mostrar do mesmo atleta
+        ordem_faixa = atleta.faixa_atual.ordem if atleta.faixa_atual else 0
+        dan_val = atleta.dan_atual or 0
+        
+        score = (ultima_grad, ordem_faixa, dan_val, atleta.id)
+        
+        if nome_norm not in atletas_unicos_dict or score > atletas_unicos_dict[nome_norm][1]:
+            atletas_unicos_dict[nome_norm] = (atleta, score)
+                    
+    atletas_unicos = [item[0] for item in atletas_unicos_dict.values()]
             
     # Re-agrupar por faixa para o template
-    faixas = Faixa.objects.all()
+    faixas = Faixa.objects.all().order_by('ordem')
     for faixa in faixas:
-        faixa.atletas_filtrados = sorted(
-            [a for a in atletas_unicos.values() if a.faixa_atual == faixa],
-            key=lambda x: x.nome
-        )
+        if faixa.is_preta:
+            # Para faixa preta, vamos agrupar por Dan internamente
+            atletas_da_faixa = [a for a in atletas_unicos if a.faixa_atual == faixa]
+            dans_dict = {} # dan -> list of athletes
+            
+            for a in atletas_da_faixa:
+                dan = a.dan_atual or 0
+                if dan not in dans_dict:
+                    dans_dict[dan] = []
+                dans_dict[dan].append(a)
+            
+            # Ordenar os Dans: Dan 0 (Sem Dan) primeiro, depois 1, 2, 3...
+            sorted_dans = sorted(dans_dict.keys())
+            
+            faixa.dans_agrupados = []
+            for dan in sorted_dans:
+                if dan == 0:
+                    nome_dan = "Somente Faixa Preta"
+                else:
+                    nome_dan = f"{dan}º DAN"
+                    
+                faixa.dans_agrupados.append({
+                    'numero': dan,
+                    'nome': nome_dan,
+                    'atletas': sorted(dans_dict[dan], key=lambda x: x.nome)
+                })
+        else:
+            faixa.atletas_filtrados = sorted(
+                [a for a in atletas_unicos if a.faixa_atual == faixa],
+                key=lambda x: x.nome
+            )
     
     # Filtra faixas que não tem atletas depois do filtro
-    faixas_com_atletas = [f for f in faixas if f.atletas_filtrados]
+    faixas_com_atletas = [f for f in faixas if (hasattr(f, 'atletas_filtrados') and f.atletas_filtrados) or (hasattr(f, 'dans_agrupados') and f.dans_agrupados)]
 
-    return render(request, 'core/atletas.html', {'faixas': faixas_com_atletas})
+    context = {
+        'faixas': faixas_com_atletas,
+        'modalidades': Modalidade.objects.all(),
+        'academias': Academia.objects.filter(ativo=True),
+        'modalidade_selecionada': int(modalidade_id) if modalidade_id else None,
+        'academia_selecionada': int(academia_id) if academia_id else None,
+    }
+
+    return render(request, 'core/atletas.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)

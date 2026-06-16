@@ -7,147 +7,203 @@
         <p class="text-gray-400 font-bold mt-2 uppercase tracking-widest text-xs">Quadro de Atletas Oficiais e Graduações</p>
     </div>
     
-    <a href="{% url 'exportar_atletas' %}" class="bg-cardBg hover:bg-gray-800 text-brasilVerde border border-brasilVerde/30 font-black py-3 px-6 rounded-xl shadow-2xl flex items-center gap-3 transition-all transform hover:-translate-y-1">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        <span class="text-xs uppercase tracking-widest">Exportar Relatório</span>
-    </a>
+    <div class="flex flex-wrap gap-4">
+        <a href="{% url 'exportar_atletas' %}" class="bg-cardBg hover:bg-gray-800 text-brasilVerde border border-brasilVerde/30 font-black py-3 px-6 rounded-xl shadow-2xl flex items-center gap-3 transition-all transform hover:-translate-y-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span class="text-xs uppercase tracking-widest">Relatório</span>
+        </a>
+    </div>
+</div>
+
+<!-- Filtros: Academia e Modalidades (Compacto) -->
+<div class="mb-12 space-y-6">
+    <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+        <!-- Academia Select (Compacto) -->
+        <div class="w-full lg:w-72 bg-cardBg/50 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+            <label class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2 ml-1">Filtrar Academia:</label>
+            <select onchange="window.location.href='?academia=' + this.value + '&modalidade={{ modalidade_selecionada|default:'' }}'" 
+                    class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white focus:border-brasilAmarelo transition-colors appearance-none">
+                <option value="">TODAS AS ACADEMIAS</option>
+                {% for aca in academias %}
+                <option value="{{ aca.id }}" {% if academia_selecionada == aca.id %}selected{% endif %}>{{ aca.nome|upper }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Modality Buttons (Compacto) -->
+        <div class="flex-grow w-full overflow-hidden">
+            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 ml-1">Selecione a Modalidade:</p>
+            <div class="flex overflow-x-auto space-x-2 pb-2 custom-scrollbar">
+                <a href="?academia={{ academia_selecionada|default:'' }}" 
+                   class="whitespace-nowrap px-5 py-2 text-[9px] font-black uppercase rounded-xl transition-all border-2 
+                   {% if not modalidade_selecionada %}bg-brasilAmarelo text-brasilAzul border-brasilAmarelo shadow-lg shadow-brasilAmarelo/20{% else %}bg-cardBg text-white border-transparent opacity-60 hover:opacity-100{% endif %}">
+                    Todas
+                </a>
+                {% for mod in modalidades %}
+                <a href="?modalidade={{ mod.id }}&academia={{ academia_selecionada|default:'' }}" 
+                   class="whitespace-nowrap px-5 py-2 text-[9px] font-black uppercase rounded-xl transition-all border-2 
+                   {% if modalidade_selecionada == mod.id %}bg-brasilAmarelo text-brasilAzul border-brasilAmarelo shadow-lg shadow-brasilAmarelo/20{% else %}bg-cardBg text-white border-transparent opacity-60 hover:opacity-100{% endif %}">
+                    {{ mod.nome }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Belt Navigation -->
-<div class="flex overflow-x-auto space-x-4 mb-12 border-b border-white/5 pb-4 custom-scrollbar">
-    {% for faixa in faixas %}
-        <button 
-            onclick="abrirAba('aba-{{ faixa.id }}')" 
-            class="tab-btn whitespace-nowrap px-8 py-3 text-xs font-black uppercase rounded-2xl transition-all duration-300 opacity-40 hover:opacity-100 bg-cardBg text-white border-2 border-transparent"
-            style="border-color: {{ faixa.cor_hex|default:'#333' }};"
-            id="btn-{{ faixa.id }}">
-            {{ faixa.nome }}
-        </button>
-    {% endfor %}
+<div class="space-y-3 mb-12">
+    <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 ml-4">Graduação:</p>
+    <div class="flex overflow-x-auto space-x-4 border-b border-white/5 pb-4 custom-scrollbar">
+        {% for faixa in faixas %}
+            <button 
+                onclick="abrirAba('aba-{{ faixa.id }}')" 
+                class="tab-btn whitespace-nowrap px-8 py-3 text-xs font-black uppercase rounded-2xl transition-all duration-300 opacity-40 hover:opacity-100 bg-cardBg text-white border-2 border-transparent"
+                style="border-color: {{ faixa.cor_hex|default:'#333' }};"
+                id="btn-{{ faixa.id }}">
+                {{ faixa.nome }}
+            </button>
+        {% endfor %}
+    </div>
 </div>
 
 <div class="space-y-12 min-h-[60vh]">
     {% for faixa in faixas %}
     <div id="aba-{{ faixa.id }}" class="tab-content hidden animate-slide-up">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {% for atleta in faixa.atletas_filtrados %}
-            
-            <div onclick="abrirModal('modal-{{ atleta.id }}')" class="group relative bg-cardBg rounded-3xl p-6 shadow-2xl cursor-pointer transform hover:-translate-y-2 transition-all duration-500 border border-white/5 hover:border-brasilAmarelo/50">
-                <!-- Belt Indicator Corner -->
-                <div class="absolute top-0 right-0 w-12 h-12 rounded-tr-3xl rounded-bl-3xl opacity-20" style="background-color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};"></div>
-                
-                <div class="relative mb-6">
-                    {% if atleta.foto %}
-                    <img src="{{ atleta.foto.url }}" class="w-24 h-24 mx-auto rounded-2xl object-cover shadow-2xl border-4 border-black group-hover:scale-105 transition-transform duration-500">
-                    {% else %}
-                    <div class="w-24 h-24 mx-auto rounded-2xl bg-gray-900 border-4 border-black flex items-center justify-center text-[10px] text-gray-600 font-black uppercase tracking-tighter text-center px-2">Sem Imagem Ofic.</div>
-                    {% endif %}
-                    
-                    <!-- Belt Label -->
-                    <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black border border-white/10 rounded-full shadow-lg">
-                        <span class="text-[9px] font-black uppercase tracking-widest whitespace-nowrap" style="color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};">{{ atleta.faixa_atual.nome }}</span>
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    <p class="font-black text-white text-sm uppercase tracking-tight line-clamp-1 group-hover:text-brasilAmarelo transition-colors">{{ atleta.nome }}</p>
-                    <p class="text-[10px] text-gray-500 font-bold mt-2 uppercase tracking-widest line-clamp-1">{{ atleta.academia.nome|default:"Independente" }}</p>
-                </div>
+        
+        {% if faixa.is_preta %}
+            <!-- Sub-navegação para Dans (RESTAURADO) -->
+            <div class="flex overflow-x-auto space-x-2 mb-8 pb-2 custom-scrollbar border-b border-white/5">
+                {% for dan_grupo in faixa.dans_agrupados %}
+                    <button 
+                        onclick="abrirSubAba('aba-{{ faixa.id }}', 'dan-{{ faixa.id }}-{{ dan_grupo.numero }}')" 
+                        class="sub-tab-btn sub-tab-btn-{{ faixa.id }} whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase rounded-xl transition-all opacity-40 hover:opacity-100 bg-black/40 text-white border border-brasilAmarelo/20"
+                        id="btn-dan-{{ faixa.id }}-{{ dan_grupo.numero }}">
+                        {{ dan_grupo.nome }}
+                    </button>
+                {% endfor %}
             </div>
 
-            <!-- Modal for Detail -->
-            <div id="modal-{{ atleta.id }}" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-md">
-                <div class="bg-cardBg border border-white/10 rounded-[2.5rem] max-w-lg w-full p-10 text-left relative shadow-3xl overflow-hidden">
-                    <!-- Background Accent -->
-                    <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-20" style="background-color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};"></div>
-                    
-                    <button onclick="fecharModal('modal-{{ atleta.id }}')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                    
-                    <div class="flex flex-col items-center mb-10 text-center">
-                        <div class="relative mb-6">
-                            {% if atleta.foto %}
-                            <img src="{{ atleta.foto.url }}" class="w-40 h-40 rounded-3xl object-cover shadow-3xl border-4 border-black">
-                            {% else %}
-                            <div class="w-40 h-40 rounded-3xl bg-gray-900 border-4 border-black flex items-center justify-center text-gray-600 font-black">SEM FOTO</div>
-                            {% endif %}
-                            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black border-2 rounded-full shadow-2xl" style="border-color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};">
-                                <span class="text-sm font-black uppercase tracking-[0.2em]" style="color: {{ atleta.faixa_atual.cor_hex|default:'#FFF' }};">{{ atleta.faixa_atual.nome }}</span>
-                            </div>
-                        </div>
-                        
-                        <h3 class="text-3xl font-black text-white uppercase italic tracking-tighter">{{ atleta.nome }}</h3>
-                        <p class="text-brasilAmarelo font-black uppercase tracking-widest text-xs mt-2">{{ atleta.academia.nome|default:"Atleta Independente" }}</p>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <h4 class="font-black text-gray-500 text-xs uppercase tracking-[0.3em]">Trajetória de Honra</h4>
-                            <div class="h-[1px] flex-grow bg-white/5"></div>
-                        </div>
-                        
-                        <div class="space-y-4 max-h-72 overflow-y-auto pr-4 custom-scrollbar">
-                            {% for historico in atleta.historico_faixas.all %}
-                            <div class="flex justify-between items-center bg-black/40 p-5 rounded-2xl border-l-4 group" style="border-color: {{ historico.faixa.cor_hex|default:'#FFF' }};">
-                                <div>
-                                    <span class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Graduação</span>
-                                    <span class="text-lg font-black text-white uppercase italic">{{ historico.faixa.nome }}</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Data</span>
-                                    <span class="text-sm font-bold text-brasilAmarelo">{{ historico.data_graduacao|date:"d / m / Y" }}</span>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="text-center py-10">
-                                <p class="text-gray-600 font-bold uppercase tracking-widest text-xs">Aguardando registro de histórico...</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+            {% for dan_grupo in faixa.dans_agrupados %}
+            <div id="dan-{{ faixa.id }}-{{ dan_grupo.numero }}" class="sub-tab-content sub-tab-content-{{ faixa.id }} hidden">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    {% for atleta in dan_grupo.atletas %}
+                        {% include 'core/includes/atleta_card.html' with atleta=atleta %}
+                    {% endfor %}
                 </div>
             </div>
             {% endfor %}
-        </div>
+        {% else %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {% for atleta in faixa.atletas_filtrados %}
+                    {% include 'core/includes/atleta_card.html' with atleta=atleta %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
 
+<!-- Render all athlete modals at the bottom of the body -->
+{% for faixa in faixas %}
+    {% if faixa.is_preta %}
+        {% for dan_grupo in faixa.dans_agrupados %}
+            {% for atleta in dan_grupo.atletas %}
+                {% include 'core/includes/atleta_modal.html' with atleta=atleta %}
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        {% for atleta in faixa.atletas_filtrados %}
+            {% include 'core/includes/atleta_modal.html' with atleta=atleta %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+
 <script>
+    /**
+     * Alterna entre as abas principais (Faixas)
+     */
     function abrirAba(idAba) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(el => {
-            el.classList.add('opacity-40', 'border-transparent');
-            el.classList.remove('opacity-100', 'bg-white/5');
+        // 1. Esconder todas as abas principais
+        const todasAbas = document.querySelectorAll('.tab-content');
+        todasAbas.forEach(aba => {
+            aba.style.display = 'none';
+            aba.classList.add('hidden');
+        });
+
+        // 2. Resetar estilo dos botões principais
+        const todosBotoes = document.querySelectorAll('.tab-btn');
+        todosBotoes.forEach(btn => {
+            btn.classList.add('opacity-40', 'border-transparent');
+            btn.classList.remove('opacity-100', 'bg-white/5');
         });
         
+        // 3. Mostrar a aba clicada
         const abaAtiva = document.getElementById(idAba);
         if (abaAtiva) {
+            abaAtiva.style.display = 'block';
             abaAtiva.classList.remove('hidden');
-            const btnAtivo = document.getElementById('btn-' + idAba.split('-')[1]);
+            
+            // Ativar botão principal
+            const idFaixa = idAba.replace('aba-', '');
+            const btnAtivo = document.getElementById('btn-' + idFaixa);
             if (btnAtivo) {
                 btnAtivo.classList.remove('opacity-40', 'border-transparent');
                 btnAtivo.classList.add('opacity-100', 'bg-white/5');
             }
+
+            // 4. Se for Faixa Preta, garantir que a primeira sub-aba (Somente Preta) abra por padrão
+            const primeiraSubAba = abaAtiva.querySelector('.sub-tab-content');
+            if (primeiraSubAba) {
+                const idSub = primeiraSubAba.id;
+                abrirSubAba(idAba, idSub);
+            }
         }
     }
 
+    /**
+     * Alterna entre as sub-abas (Dans) dentro de uma aba de Faixa Preta
+     */
+    function abrirSubAba(idAbaPai, idSubAba) {
+        const pai = document.getElementById(idAbaPai);
+        if (!pai) return;
+
+        // 1. Esconder todas as sub-abas deste pai
+        const subAbas = pai.querySelectorAll('.sub-tab-content');
+        subAbas.forEach(sub => {
+            sub.style.display = 'none';
+            sub.classList.add('hidden');
+        });
+
+        // 2. Resetar estilo dos sub-botões deste pai
+        const subBotoes = pai.querySelectorAll('.sub-tab-btn');
+        subBotoes.forEach(btn => {
+            btn.classList.add('opacity-40');
+            btn.classList.remove('opacity-100', 'bg-brasilAmarelo/20');
+        });
+
+        // 3. Mostrar a sub-aba selecionada
+        const subAtiva = document.getElementById(idSubAba);
+        if (subAtiva) {
+            subAtiva.style.display = 'block';
+            subAtiva.classList.remove('hidden');
+            
+            // Ativar sub-botão
+            const btnSubAtivo = document.getElementById('btn-' + idSubAba);
+            if (btnSubAtivo) {
+                btnSubAtivo.classList.remove('opacity-40');
+                btnSubAtivo.classList.add('opacity-100', 'bg-brasilAmarelo/20');
+            }
+        }
+    }
+
+    // Inicialização ao carregar a página
     document.addEventListener("DOMContentLoaded", () => {
         const primeiraAba = document.querySelector('.tab-content');
-        if (primeiraAba) abrirAba(primeiraAba.id);
+        if (primeiraAba) {
+            abrirAba(primeiraAba.id);
+        }
     });
-
-    function abrirModal(idModal) { 
-        const modal = document.getElementById(idModal);
-        modal.classList.remove('hidden'); 
-        document.body.style.overflow = 'hidden';
-    }
-    function fecharModal(idModal) { 
-        const modal = document.getElementById(idModal);
-        modal.classList.add('hidden'); 
-        document.body.style.overflow = 'auto';
-    }
 </script>
 
 <style>
