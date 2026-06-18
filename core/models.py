@@ -81,8 +81,8 @@ class Atleta(models.Model):
     modalidades = models.ManyToManyField(Modalidade, blank=True, related_name='atletas')
     
     # null=True e blank=True permitem que o atleta exista sem uma faixa registrada
-    faixa_atual = models.ForeignKey(Faixa, on_delete=models.RESTRICT, null=True, blank=True, related_name='atletas_atuais')
-    dan_atual = models.IntegerField(null=True, blank=True, verbose_name="Dan (Se faixa preta)")
+    faixa_atual = models.ForeignKey(Faixa, on_delete=models.RESTRICT, null=True, blank=True, related_name='atletas_atuais', help_text="Faixa Principal (LEGACY)")
+    dan_atual = models.IntegerField(null=True, blank=True, verbose_name="Dan (Se faixa preta)", help_text="Dan Principal (LEGACY)")
     ativo = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
@@ -100,8 +100,24 @@ class Atleta(models.Model):
     def __str__(self):
         return self.nome
 
+class Graduacao(models.Model):
+    atleta = models.ForeignKey(Atleta, on_delete=models.CASCADE, related_name='graduacoes')
+    modalidade = models.ForeignKey(Modalidade, on_delete=models.CASCADE)
+    faixa = models.ForeignKey(Faixa, on_delete=models.RESTRICT)
+    dan = models.IntegerField(null=True, blank=True, verbose_name="Dan (Se faixa preta)")
+    data_graduacao = models.DateField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Graduação"
+        verbose_name_plural = "Graduações"
+        unique_together = ('atleta', 'modalidade')
+
+    def __str__(self):
+        return f"{self.atleta.nome} - {self.modalidade.nome} ({self.faixa.nome})"
+
 class HistoricoGraduacao(models.Model):
     atleta = models.ForeignKey(Atleta, on_delete=models.CASCADE, related_name='historico_faixas') 
+    modalidade = models.ForeignKey(Modalidade, on_delete=models.CASCADE, null=True, blank=True)
     faixa = models.ForeignKey(Faixa, on_delete=models.RESTRICT)
     dan = models.IntegerField(null=True, blank=True, verbose_name="Dan")
     data_graduacao = models.DateField()
@@ -111,9 +127,10 @@ class HistoricoGraduacao(models.Model):
         ordering = ['-data_graduacao']
 
     def __str__(self):
+        mod_nome = f" [{self.modalidade.nome}]" if self.modalidade else ""
         if self.dan:
-            return f"{self.atleta.nome} - {self.faixa.nome} {self.dan}º Dan em {self.data_graduacao}"
-        return f"{self.atleta.nome} - {self.faixa.nome} em {self.data_graduacao}"
+            return f"{self.atleta.nome}{mod_nome} - {self.faixa.nome} {self.dan}º Dan em {self.data_graduacao}"
+        return f"{self.atleta.nome}{mod_nome} - {self.faixa.nome} em {self.data_graduacao}"
 
 class Midia(models.Model):
     titulo = models.CharField(max_length=200)

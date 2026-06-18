@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import admin
-from .models import Modalidade, Academia, Faixa, Atleta, HistoricoGraduacao, Midia, Noticia, PedidoAfiliacaoAtleta, PedidoAfiliacaoAcademia, Evento
+from .models import Modalidade, Academia, Faixa, Atleta, HistoricoGraduacao, Midia, Noticia, PedidoAfiliacaoAtleta, PedidoAfiliacaoAcademia, Evento, Graduacao
 
 @admin.register(Faixa)
 class FaixaAdmin(admin.ModelAdmin):
@@ -27,7 +27,7 @@ class AcademiaAdmin(admin.ModelAdmin):
 
 class HistoricoGraduacaoInline(admin.TabularInline):
     model = HistoricoGraduacao
-    fields = ('faixa', 'dan', 'data_graduacao', 'examinador')
+    fields = ('modalidade', 'faixa', 'dan', 'data_graduacao', 'examinador')
     extra = 1
     # Apenas o Presidente pode adicionar/mudar histórico de faixa
     def has_add_permission(self, request, obj=None):
@@ -37,11 +37,15 @@ class HistoricoGraduacaoInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
 
+class GraduacaoInline(admin.TabularInline):
+    model = Graduacao
+    extra = 1
+
 @admin.register(Atleta)
 class AtletaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'academia', 'faixa_atual', 'dan_atual', 'ativo')
     list_filter = ('ativo', 'academia', 'faixa_atual', 'modalidades')
-    inlines = [HistoricoGraduacaoInline]
+    inlines = [GraduacaoInline, HistoricoGraduacaoInline]
 
     def get_readonly_fields(self, request, obj=None):
         # Bloqueia a alteração de faixa para quem não é o Presidente
