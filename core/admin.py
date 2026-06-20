@@ -1,16 +1,16 @@
 from django.db import models
 from django.contrib import admin
 from .models import Modalidade, Academia, Faixa, Atleta, HistoricoGraduacao, Midia, Noticia, PedidoAfiliacaoAtleta, PedidoAfiliacaoAcademia, Evento, Graduacao
-
 @admin.register(Faixa)
 class FaixaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'ordem', 'is_preta', 'cor_hex')
-    list_editable = ('is_preta',)
+    list_editable = ('is_preta', 'ordem')
     ordering = ('ordem',)
 
 @admin.register(Modalidade)
 class ModalidadeAdmin(admin.ModelAdmin):
     list_display = ('nome',)
+    filter_horizontal = ('faixas',)
 
 @admin.register(Academia)
 class AcademiaAdmin(admin.ModelAdmin):

@@ -69,7 +69,10 @@ def atletas_list(request):
         graduacoes = graduacoes.filter(atleta__academia_id=academia_id)
 
     # Re-agrupar por faixa para o template
-    faixas = Faixa.objects.all().order_by('ordem')
+    if modalidade_id:
+        faixas = Faixa.objects.filter(modalidades__id=modalidade_id).order_by('ordem')
+    else:
+        faixas = Faixa.objects.all().order_by('ordem')
     faixas_com_atletas = []
 
     for faixa in faixas:

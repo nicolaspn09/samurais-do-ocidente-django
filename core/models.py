@@ -6,6 +6,7 @@ from django.core.validators import FileExtensionValidator
 class Modalidade(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(blank=True)
+    faixas = models.ManyToManyField('Faixa', related_name='modalidades', blank=True)
 
     def __str__(self):
         return self.nome
